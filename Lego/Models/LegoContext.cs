@@ -69,9 +69,10 @@ public partial class LegoContext : DbContext
 
         modelBuilder.Entity<LegoInventoryPart>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("lego_inventory_parts");
+            //entity
+            //    .HasNoKey()
+            //    .ToTable("lego_inventory_parts");
+            entity.HasKey(e => e.InventoryId).HasName("lego_inv_part_pkey");
 
             entity.Property(e => e.ColorId).HasColumnName("color_id");
             entity.Property(e => e.InventoryId).HasColumnName("inventory_id");
@@ -80,8 +81,8 @@ public partial class LegoContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("part_num");
             entity.Property(e => e.Quantity).HasColumnName("quantity");
-            entity.HasOne(e => e.Color).WithMany(lc => lc.legoInventoryParts)
-            .HasForeignKey(e => e.ColorId);
+            //entity.HasOne(e => e.Color).WithMany(lc => lc.legoInventoryParts)
+            //.HasForeignKey(e => e.ColorId);
         });
 
         modelBuilder.Entity<LegoInventorySet>(entity =>
