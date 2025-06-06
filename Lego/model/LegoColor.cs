@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Lego.Models;
+namespace Lego.model;
 
 public partial class LegoColor
 {
@@ -12,5 +12,4 @@ public partial class LegoColor
     public string Rgb { get; set; } = null!;
 
     public char IsTrans { get; set; }
-    public List<LegoInventoryPart> legoInventoryParts { get; set; }
 }

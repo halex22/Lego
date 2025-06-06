@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Lego.Models;
+namespace Lego.model;
 
 public partial class LegoSet
 {
@@ -14,4 +14,8 @@ public partial class LegoSet
     public int? ThemeId { get; set; }
 
     public int? NumParts { get; set; }
+
+    public virtual ICollection<LegoInventory> LegoInventories { get; set; } = new List<LegoInventory>();
+
+    public virtual LegoTheme? Theme { get; set; }
 }

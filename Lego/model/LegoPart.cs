@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Lego.Models;
+namespace Lego.model;
 
 public partial class LegoPart
 {
@@ -10,4 +10,6 @@ public partial class LegoPart
     public string Name { get; set; } = null!;
 
     public int PartCatId { get; set; }
+
+    public virtual LegoPartCategory PartCat { get; set; } = null!;
 }

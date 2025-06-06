@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Lego.Models;
+namespace Lego.model;
 
 public partial class LegoInventory
 {
@@ -10,4 +10,6 @@ public partial class LegoInventory
     public int Version { get; set; }
 
     public string SetNum { get; set; } = null!;
+
+    public virtual LegoSet SetNumNavigation { get; set; } = null!;
 }

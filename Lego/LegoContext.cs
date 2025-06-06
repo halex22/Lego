@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Lego.model;
 using Microsoft.EntityFrameworkCore;
 
-namespace Lego.Models;
+namespace Lego;
 
 public partial class LegoContext : DbContext
 {
@@ -32,7 +33,8 @@ public partial class LegoContext : DbContext
     public virtual DbSet<LegoTheme> LegoThemes { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql(AppConfig.GetConfigurationString());
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=lego;Username=postgres;Password=superpippo;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -65,14 +67,18 @@ public partial class LegoContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("set_num");
             entity.Property(e => e.Version).HasColumnName("version");
+
+            entity.HasOne(d => d.SetNumNavigation).WithMany(p => p.LegoInventories)
+                .HasForeignKey(d => d.SetNum)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("inventories _sets_fk");
         });
 
         modelBuilder.Entity<LegoInventoryPart>(entity =>
         {
-            //entity
-            //    .HasNoKey()
-            //    .ToTable("lego_inventory_parts");
-            entity.HasKey(e => e.InventoryId).HasName("lego_inv_part_pkey");
+            entity
+                .HasNoKey()
+                .ToTable("lego_inventory_parts");
 
             entity.Property(e => e.ColorId).HasColumnName("color_id");
             entity.Property(e => e.InventoryId).HasColumnName("inventory_id");
@@ -81,8 +87,21 @@ public partial class LegoContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("part_num");
             entity.Property(e => e.Quantity).HasColumnName("quantity");
-            //entity.HasOne(e => e.Color).WithMany(lc => lc.legoInventoryParts)
-            //.HasForeignKey(e => e.ColorId);
+
+            entity.HasOne(d => d.Color).WithMany()
+                .HasForeignKey(d => d.ColorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("inv_parts_fk");
+
+            entity.HasOne(d => d.Inventory).WithMany()
+                .HasForeignKey(d => d.InventoryId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("inv_parts_inventory_fk");
+
+            entity.HasOne(d => d.PartNumNavigation).WithMany()
+                .HasForeignKey(d => d.PartNum)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("inv_parts_parts_fk");
         });
 
         modelBuilder.Entity<LegoInventorySet>(entity =>
@@ -96,6 +115,16 @@ public partial class LegoContext : DbContext
             entity.Property(e => e.SetNum)
                 .HasMaxLength(255)
                 .HasColumnName("set_num");
+
+            entity.HasOne(d => d.Inventory).WithMany()
+                .HasForeignKey(d => d.InventoryId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("inv_sets_inventory_fk");
+
+            entity.HasOne(d => d.SetNumNavigation).WithMany()
+                .HasForeignKey(d => d.SetNum)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("inv_sets_sets_fk");
         });
 
         modelBuilder.Entity<LegoPart>(entity =>
@@ -109,6 +138,11 @@ public partial class LegoContext : DbContext
                 .HasColumnName("part_num");
             entity.Property(e => e.Name).HasColumnName("name");
             entity.Property(e => e.PartCatId).HasColumnName("part_cat_id");
+
+            entity.HasOne(d => d.PartCat).WithMany(p => p.LegoParts)
+                .HasForeignKey(d => d.PartCatId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("part_categproes_fk");
         });
 
         modelBuilder.Entity<LegoPartCategory>(entity =>
@@ -138,6 +172,10 @@ public partial class LegoContext : DbContext
             entity.Property(e => e.NumParts).HasColumnName("num_parts");
             entity.Property(e => e.ThemeId).HasColumnName("theme_id");
             entity.Property(e => e.Year).HasColumnName("year");
+
+            entity.HasOne(d => d.Theme).WithMany(p => p.LegoSets)
+                .HasForeignKey(d => d.ThemeId)
+                .HasConstraintName("set_themes_fk");
         });
 
         modelBuilder.Entity<LegoTheme>(entity =>
@@ -151,6 +189,10 @@ public partial class LegoContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("name");
             entity.Property(e => e.ParentId).HasColumnName("parent_id");
+
+            entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent)
+                .HasForeignKey(d => d.ParentId)
+                .HasConstraintName("parent_theme_fk");
         });
 
         OnModelCreatingPartial(modelBuilder);
